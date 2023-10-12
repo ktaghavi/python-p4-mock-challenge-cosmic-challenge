@@ -18,7 +18,7 @@ db = SQLAlchemy(metadata=metadata)
 
 
 class Planet(db.Model, SerializerMixin):
-    __tablename__ = 'planets'
+    __tablename__ = 'planets_table'
 
     id = db.Column(db.Integer, primary_key=True)
     name = db.Column(db.String)
@@ -26,18 +26,20 @@ class Planet(db.Model, SerializerMixin):
     nearest_star = db.Column(db.String)
 
     # Add relationship
+    missions = db.relationship("Mission", backref="planet", cascade='all, delete')
 
     # Add serialization rules
 
 
 class Scientist(db.Model, SerializerMixin):
-    __tablename__ = 'scientists'
+    __tablename__ = 'scientists_table'
 
     id = db.Column(db.Integer, primary_key=True)
-    name = db.Column(db.String)
-    field_of_study = db.Column(db.String)
+    name = db.Column(db.String, nullable=False)
+    field_of_study = db.Column(db.String, nullable=False)
 
     # Add relationship
+    missions = db.relationship("Mission", backref="scientist", cascade='all, delete')
 
     # Add serialization rules
 
@@ -45,16 +47,16 @@ class Scientist(db.Model, SerializerMixin):
 
 
 class Mission(db.Model, SerializerMixin):
-    __tablename__ = 'missions'
+    __tablename__ = 'missions_table'
 
     id = db.Column(db.Integer, primary_key=True)
-    name = db.Column(db.String)
+    name = db.Column(db.String, nullable=False)
 
     # Add relationships
+    scientist_id = db.Column(db.Integer, db.ForeignKey('scientists_table.id'), nullable=False)
+    planet_id = db.Column(db.Integer, db.ForeignKey('planets_table.id'), nullable=False)
 
     # Add serialization rules
-
-    # Add validation
-
+    serialize_rules = ('-scientist.missions', '-planet.missions')
 
 # add any models you may need.
